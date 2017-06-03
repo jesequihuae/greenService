@@ -37,16 +37,7 @@
     /* Retorna las instancias creadas dentro de una hora */
     $app->get('/hora/{tipo}/{posicion}/{anio}/{mes}/{dia}/{hora}', function(Request $request, Response $response, $args){
         $tipo = $args['tipo']; $posicion = $args['posicion']; $anio = $args['anio']; $mes = $args['mes']; $dia = $args['dia'];  $hora = $args['hora'];
-        
-    $app->get('/hora/{tipo}/{posicion}/{anio}/{mes}/{dia}/{hora}',function(Request $request, Response $response, $args){
-        $tipo = $args['tipo'];
-        $posicion = $args['posicion'];
-        $anio = $args['anio'];
-        $mes = $args['mes'];
-        $dia = $args['dia'];
-        $hora = $args['hora'];
 
-        $minutos =
         $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
         $respuesta = url($url_enviada);
 
@@ -56,7 +47,7 @@
     /* Retorna las instancias creadas en un dia promediadas por hora /{tipo}/{posicion}/{anio}/{mes}/{dia} */
     $app->get('/dia/{tipo}/{posicion}/{anio}/{mes}/{dia}', function(Request $request, Response $response, $args){
         $tipo = $args['tipo']; $posicion = $args['posicion']; $anio = $args['anio']; $mes = $args['mes']; $dia = $args['dia'];
-        // $dia = array(); // JSON a retornar con los promedios por hora
+        $Array = array(); // JSON a retornar con los promedios por hora
 
         for ($i=0; $i < 24 ; $i++)
         { 
@@ -68,10 +59,12 @@
              $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
              $respuesta = url($url_enviada);
              $respuesta = json_decode($respuesta);
+             
              if(sizeof($respuesta)>0)
-                return sendOkResponse(json_encode($respuesta), $response);
+                array_push($Array, $respuesta);
+                
         }
-
+        return sendOkResponse(json_encode($Array), $response);
         // for ($i=0; $i < 4; $i++) 
         // { 
         //     array_push($dia, array("hora" => "10:00", "humedadRelativa" => 10.4, "humedadSuelo" => 30, "temperatura" => 20));
@@ -104,21 +97,21 @@
     	return $answer;
     }
 
-		//FUNCION PARA INSERTAR UN JSON AL OREON CONTEXT BROKER CON CURL
-			function url_post($data){
-				header("Content-Type: application/json");
-				$url = 'http://207.249.127.215:1026/v2/entities';
-				$ch = curl_init($url);
-				@curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
-				curl_setopt($ch, CURLOPT_POSTFIELDS,$data);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-				curl_setopt($ch, CURLOPT_HTTPHEADER,array(
-					'Content-Type:application/json',
-					'Content-Length:'.strlen($data))
-				);
-				$response = curl_exec($ch);
-				return $response;
-			}
+	//FUNCION PARA INSERTAR UN JSON AL OREON CONTEXT BROKER CON CURL
+	function url_post($data){
+		header("Content-Type: application/json");
+		$url = 'http://207.249.127.215:1026/v2/entities';
+		$ch = curl_init($url);
+		@curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
+		curl_setopt($ch, CURLOPT_POSTFIELDS,$data);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,array(
+	       	'Content-Type:application/json',
+			'Content-Length:'.strlen($data))
+		);
+		$response = curl_exec($ch);
+		return $response;
+	}
 
     $app->run();
 
