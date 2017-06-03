@@ -10,10 +10,11 @@
     $humedadSuelo = $data['humedadSuelo'];
     $position = $data['position'];
     $type = $data['type'];
+    ini_set('date.timezone','America/Mexico_City');
     $date = getdate();
 
     $json = array(
-      'id'=>'maickol12332',
+      'id'=>Obtener_Nombre(),
       'type'=>$type,
       "empresa"=>array(
         'type'=>'String',
@@ -25,11 +26,11 @@
       ),
       'f_dia'=>array(
         'type'=>'Float',
-        'value'=>$date['mon']
+        'value'=>(strlen($date['mday'])==1)?'0'.$date['mday']:$date['mday']
       ),
       'f_hora'=>array(
         'type'=>'Float',
-        'value'=>$date['hours']
+        'value'=>(strlen($date['hours'])==1)?'0'.$date['hours']:$date['hours']
       ),
       'f_mes'=>array(
         'type'=>'Float',
@@ -37,7 +38,7 @@
       ),
       'f_minutos'=>array(
         'type'=>'Float',
-        'value'=>$date['minutes']
+        'value'=>(strlen($date['minutes'])==1)?'0'.$date['minutes']:$date['minutes']
       ),
       'humedadRelativa'=>array(
         'type'=>'Float',
@@ -61,9 +62,16 @@
   });
 
   $app->get('/insert',function(Request $request,Response $response,$args){
-    $arr = getdate();
-    return sendOkResponse(json_encode($arr),$response);
+    ini_set('date.timezone','America/Mexico_City');
+    $date = getdate();
+    print_r($date);
   });
+
+  function Obtener_Nombre(){
+    ini_set('date.timezone','America/Mexico_City');
+    $date = getdate();
+    return $date['seconds'].$date['minutes'].$date['hours'].$date['mday'].$date['wday'].$date['mon'].$date['year'].$date['yday'].$date['weekday'].$date['month'];
+  }
 
 
 
