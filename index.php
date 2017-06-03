@@ -104,6 +104,22 @@
     	return $answer;
     }
 
+		//FUNCION PARA INSERTAR UN JSON AL OREON CONTEXT BROKER CON CURL
+			function url_post($data){
+				header("Content-Type: application/json");
+				$url = 'http://207.249.127.215:1026/v2/entities';
+				$ch = curl_init($url);
+				@curl_setopt($ch, CURLOPT_CUSTOMREQUEST,'POST');
+				curl_setopt($ch, CURLOPT_POSTFIELDS,$data);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER,array(
+					'Content-Type:application/json',
+					'Content-Length:'.strlen($data))
+				);
+				$response = curl_exec($ch);
+				return $response;
+			}
+
     $app->run();
 
 ?>
