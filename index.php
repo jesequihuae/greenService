@@ -1,7 +1,7 @@
-<?php 
+<?php
 	require 'vendor/autoload.php';
 	use \Psr\Http\Message\ServerRequestInterface as Request;
-    use \Psr\Http\Message\ResponseInterface as Response;
+  use \Psr\Http\Message\Responseinterface as Response;
 
     $c = new \Slim\Container();
     $c['errorHandler'] = function ($c) {
@@ -17,9 +17,11 @@
 
     require 'utils.php';
 
+		require 'view/components.php';
+
     $app->get('/get_tomates',function(Request $request, Response $response, $args){
-    	print_r(url('?type=cherubs'));
-    });	
+    	return sendOkResponse(url('?type=cherubs'),$response);
+    });
 
     /* Obtener actual de cualquier tipo cualquier posicion */
     $app->get('/actual/{tipo}/{posicion}',function(Request $request, Response $response, $args){
@@ -42,7 +44,7 @@
         $dia = $args['dia'];
         $hora = $args['hora'];
 
-        $minutos = 
+        $minutos =
         $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
         $respuesta = url($url_enviada);
 
