@@ -1,4 +1,5 @@
 <?php
+
 	require 'vendor/autoload.php';
 	use \Psr\Http\Message\ServerRequestInterface as Request;
      use \Psr\Http\Message\Responseinterface as Response;
@@ -19,37 +20,62 @@
 
 	require 'view/components.php';
 
-    $app->get('/get_tomates',function(Request $request, Response $response, $args){
-    	return sendOkResponse(url('?type=cherubs'),$response);
-    });
-
     /* Obtener actual de cualquier tipo cualquier posicion */
     $app->get('/actual/{tipo}/{posicion}', function(Request $request, Response $response, $args){
-    	$tipo = $args['tipo'];
-    	$posicion = $args['posicion'];
-    	$url_enviada = '?q=position==\''.$posicion.'\'&type='.$tipo;
+    	$tipo = $args['tipo'];	$posicion = $args['posicion'];
+      $temperatura = 0; $humedadSuelo = 0;  $humedadRelativa = 0;
+      $Array = array();
+
+      $url_enviada = '?q=position==\''.$posicion.'\'&type='.$tipo;
     	$respuesta = url($url_enviada);
     	$respuesta = json_decode($respuesta);
-        $respuesta = $respuesta[sizeof($respuesta)-1];
-    	return sendOkResponse(json_encode($respuesta),$response);
+      $respuesta = $respuesta[sizeof($respuesta)-1];
+      $temperatura = $respuesta->temperatura->value;
+      $humedadSuelo = $respuesta->humedadSuelo->value;
+      $humedadRelativa = $respuesta->humedadRelativa->value;
+
+      array_push($Array, array("humedadRelativa" => $humedadRelativa,
+                               "humedadSuelo" => $humedadSuelo,
+                               "temperatura" => $temperatura));
+    	// return sendOkResponse(json_encode($respuesta),$response);
+      print_r(json_encode($Array));
     });
 
     /* Retorna las instancias creadas dentro de una hora */
     $app->get('/hora/{tipo}/{posicion}/{anio}/{mes}/{dia}/{hora}', function(Request $request, Response $response, $args){
         $tipo = $args['tipo']; $posicion = $args['posicion']; $anio = $args['anio']; $mes = $args['mes']; $dia = $args['dia'];  $hora = $args['hora'];
-
+        $temperatura = 0; $humedadSuelo = 0;  $humedadRelativa = 0;
+        $Array = array();
+        
         $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
         $respuesta = url($url_enviada);
 
-        return sendOkResponse($respuesta,$response);
+        $respuesta = json_decode($respuesta);
+
+        for ($i=0; $i < sizeof($respuesta) ; $i++)
+        { 
+          $temperatura = $respuesta[$i]->temperatura->value;
+          $humedadSuelo = $respuesta[$i]->humedadSuelo->value;
+          $humedadRelativa = $respuesta[$i]->humedadRelativa->value;
+
+          array_push($Array, array( "hora" => $hora.':'.$respuesta[$i]->f_minutos->value, 
+                                       "humedadRelativa" => $humedadRelativa,
+                                       "humedadSuelo" => $humedadSuelo,
+                                       "temperatura" => $temperatura));
+        }
+        
+        print_r(json_encode($Array));
     });
 
     /* Retorna las instancias creadas en un dia promediadas por hora /{tipo}/{posicion}/{anio}/{mes}/{dia} */
     $app->get('/dia/{tipo}/{posicion}/{anio}/{mes}/{dia}', function(Request $request, Response $response, $args){
         $tipo = $args['tipo']; $posicion = $args['posicion']; $anio = $args['anio']; $mes = $args['mes']; $dia = $args['dia'];
+        $temperatura = 0;
+        $humedadRelativa = 0;
+        $humedadSuelo = 0;
         $Array = array(); // JSON a retornar con los promedios por hora
 
-        for ($i=0; $i < 24 ; $i++)
+        for ($i=0; $i < 24; $i++)
         { 
             if($i<10)
                 $hora = '0'.$i;
@@ -59,29 +85,144 @@
              $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
              $respuesta = url($url_enviada);
              $respuesta = json_decode($respuesta);
-             
-             if(sizeof($respuesta)>0)
-                array_push($Array, $respuesta);
-                
+
+             for ($j=0; $j < sizeof($respuesta); $j++)
+             { 
+                $temperatura += $respuesta[$j]->temperatura->value;
+                $humedadRelativa += $respuesta[$j]->humedadRelativa->value;
+                $humedadSuelo += $respuesta[$j]->humedadSuelo->value;
+             }
+
+             $totalRegistros = sizeof($respuesta);
+
+             if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo == 0){
+                  $temperatura = $temperatura/$totalRegistros;
+                  $humedadRelativa = $humedadRelativa/$totalRegistros;
+                  $humedadSuelo = $humedadSuelo/$totalRegistros;
+                  $temperatura = round($temperatura, 2);
+             }          
+
+             array_push($Array, array( "hora" => "".$hora.":00", 
+                                       "humedadRelativa" => $humedadRelativa,
+                                       "humedadSuelo" => $humedadSuelo,
+                                       "temperatura" => $temperatura));
+             $temperatura = 0;
+             $humedadRelativa = 0;
+             $humedadSuelo = 0;                 
         }
-        return sendOkResponse(json_encode($Array), $response);
-        // for ($i=0; $i < 4; $i++) 
-        // { 
-        //     array_push($dia, array("hora" => "10:00", "humedadRelativa" => 10.4, "humedadSuelo" => 30, "temperatura" => 20));
-        // }
-        // // print_r(json_encode($Array));
-        // return sendOkResponse(json_encode($dia), $response);
+        print_r(json_encode($Array));
+    }); 
+
+    /* Retorna los valores de todo un mes promediados por dia */
+    $app->get('/mes/{tipo}/{posicion}/{anio}/{mes}', function(Request $request, Response $response, $args){
+        $tipo = $args['tipo']; $posicion = $args['posicion']; $anio = $args['anio']; $mes = $args['mes'];
+        if(strlen($mes) == 1)
+            $mes = '0'.$mes;
+
+
+        $Array = array();
+        $totalDias = cal_days_in_month(CAL_GREGORIAN, $mes, $anio);
+        
+        $temperatura = 0;
+        $humedadSuelo = 0;
+        $humedadRelativa = 0;
+        
+        for ($i=0; $i <= $totalDias; $i++) 
+        { 
+            if($i<10)
+                $dia = '0'.$i;
+            else
+                $dia = $i;
+
+           $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo;
+           $respuesta = url($url_enviada);
+           $respuesta = json_decode($respuesta);
+
+           for ($j=0; $j < sizeof($respuesta) ; $j++)
+           { 
+               $temperatura += $respuesta[$j]->temperatura->value;
+               $humedadSuelo += $respuesta[$j]->humedadSuelo->value;
+               $humedadRelativa += $respuesta[$j]->humedadRelativa->value;
+               // echo $temperatura;
+           }
+
+           $totalRegistros = sizeof($respuesta);
+
+           if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo == 0){
+             $temperatura = $temperatura/$totalRegistros;
+             $humedadRelativa = $humedadRelativa/$totalRegistros;
+             $humedadSuelo = $humedadSuelo/$totalRegistros;
+          }
+
+           array_push($Array, array( "dia" => "".$i, 
+                                     "humedadRelativa" => $humedadRelativa,
+                                     "humedadSuelo" => $humedadSuelo,
+                                     "temperatura" => $temperatura));
+
+           $temperatura = 0;
+           $humedadRelativa = 0;
+           $humedadSuelo = 0;
+
+        }
+
+        // return sendOkResponse(json_encode($Array), $response);
+        print_r(json_encode($Array));
     });
 
-    $app->get('/mes', function(Request $request, Response $response, $args){
-        // $tipo = $args['tipo']; /{tipo}/{posicion}/{anio}/{mes}
-        // $posicion = $args['posicion'];
-        // $anio = $args['anio'];
-        // $mes = $args['mes'];
+    /* Retorna los valores de una semana a partir de una fecha dada */
+    $app->get('/semana/{tipo}/{posicion}/{anio}/{mes}/{dia}',function(Request $request, Response $response, $args){
+      $anio = $args['anio'];  $mes = $args['mes'];  $dia = $args['dia'];  $tipo = $args['tipo'];  $posicion = $args['posicion'];
 
-        // $url_enviada = '?q=position=\''.$posicion.'\';';
-        $numero = cal_days_in_month(CAL_GREGORIAN, 2, 2017);
-        echo 'Total de dias: '.$numero;
+      $temperatura = 0;
+      $humedadRelativa = 0;
+      $humedadSuelo = 0;
+      $Array = array();
+
+      $fechaInicio = $anio.'-'.$mes.'-'.$dia;
+      $fechaFinal = strtotime('+6 day', strtotime($fechaInicio));
+      $fechaFinal = date ('Y-m-j',$fechaFinal);
+      
+      while(strcmp($fechaInicio, $fechaFinal) != 0){
+
+        if($dia<10) 
+          $dia = '0'.$dia;
+
+        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo;
+        $respuesta = url($url_enviada);
+        $respuesta = json_decode($respuesta);
+
+        for ($j=0; $j < sizeof($respuesta) ; $j++)
+        { 
+          $temperatura += $respuesta[$j]->temperatura->value;
+          $humedadSuelo += $respuesta[$j]->humedadSuelo->value;
+          $humedadRelativa += $respuesta[$j]->humedadRelativa->value;
+        }
+
+        $totalRegistros = sizeof($respuesta);
+
+        if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo == 0){
+          $temperatura = $temperatura/$totalRegistros;
+          $humedadRelativa = $humedadRelativa/$totalRegistros;
+          $humedadSuelo = $humedadSuelo/$totalRegistros;
+        }
+
+        array_push($Array, array( "dia" => "".$dia, 
+                                     "humedadRelativa" => $humedadRelativa,
+                                     "humedadSuelo" => $humedadSuelo,
+                                     "temperatura" => $temperatura));     
+
+        #Aumentando fechas
+        $fechaInicio = strtotime('+1 day',strtotime($fechaInicio));
+        $fechaInicio = date('Y-m-j',$fechaInicio);
+        $fecha = explode('-',$fechaInicio);
+        $anio = $fecha[0]; $mes = $fecha[1]; $dia = $fecha[2];
+
+        $temperatura = 0;
+        $humedadRelativa = 0;
+        $humedadSuelo = 0;
+      }       
+
+       print_r(json_encode($Array));     
     });
 
     /*Funcion global para la url y retorna el objeto*/
