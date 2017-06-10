@@ -31,7 +31,7 @@
     Obtener los valores por hora (retorna cada registro realizado dentro de determinada hora)
       URL:        http://<host>/hora/{tipo}/{posicion}/{anio}/{mes}/{dia}/{hora}
       RESPUESTA:  {
-                    "hora" : '12:00' 
+                    "hora" : '12:00'
                     "humedadRelativa" : "VALOR",
                     "humedadSuelo" : "VALOR",
                     "temperatura" : "VALOR"
@@ -43,7 +43,7 @@
     Obtener valores por dia (retorna los valores de un dia indicado, promediando por hora)
       URL:        http://<host>/dia/{tipo}/{posicion}/{anio}/{mes}/{dia}
       RESPUESTA:  {
-                    "hora" : "00:00", 
+                    "hora" : "00:00",
                     "humedadRelativa" : "VALOR",
                     "humedadSuelo" : "VALOR",
                     "temperatura" : "VALOR"
@@ -56,7 +56,7 @@
     Obtener valores por mes (retorna los valores de todo el mes indicado, promediando por dia)
       URL:       http://<host>/mes/{tipo}/{posicion}/{anio}/{mes}
       RESPUESTA: {
-                    "dia" : "1", 
+                    "dia" : "1",
                     "humedadRelativa" : "VALOR",
                     "humedadSuelo" : "VALOR",
                     "temperatura" : "VALOR"
@@ -68,11 +68,9 @@
     Obtener valores por semana (retorna los valores de una semana completa a partir de una fecha, promediando por dia)
       URL:       http://<host>/semana/{tipo}/{posicion}/{anio}/{mes}/{dia}
       RESPUESTA: {
-                    "dia" : "12", 
+                    "dia" : "12",
                     "humedadRelativa" : "VALOR",
                     "humedadSuelo" : "VALOR",
                     "temperatura" : "VALOR"
                  }
     ****************************************************************************************
-
-  
