@@ -40,8 +40,8 @@
       array_push($Array, array("humedadRelativa" => $humedadRelativa,
                                "humedadSuelo" => $humedadSuelo,
                                "temperatura" => $temperatura));
-    	return sendOkResponse(json_encode($respuesta),$response);
-      //print_r(json_encode($Array));
+    	//return sendOkResponse(json_encode($respuesta),$response);
+      print_r(json_encode($Array));
 			//echo $url_enviada;
     });
 
