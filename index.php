@@ -28,8 +28,11 @@
 
       $url_enviada = '?q=position==\''.$posicion.'\'&type='.$tipo;
     	$respuesta = url($url_enviada);
+      // print_r($url_enviada);
     	$respuesta = json_decode($respuesta);
+      // print_r($respuesta);
       $respuesta = $respuesta[sizeof($respuesta)-1];
+      //print_r(json_encode($respuesta));
       $temperatura = $respuesta->temperatura->value;
       $humedadSuelo = $respuesta->humedadSuelo->value;
       $humedadRelativa = $respuesta->humedadRelativa->value;
@@ -37,7 +40,7 @@
       array_push($Array, array("humedadRelativa" => $humedadRelativa,
                                "humedadSuelo" => $humedadSuelo,
                                "temperatura" => $temperatura));
-    	// return sendOkResponse(json_encode($respuesta),$response);
+     // return sendOkResponse(json_encode($respuesta),$response);
       print_r(json_encode($Array));
     });
 
@@ -45,6 +48,7 @@
     $app->get('/hora/{tipo}/{posicion}/{anio}/{mes}/{dia}/{hora}', function(Request $request, Response $response, $args){
         $tipo = $args['tipo']; $posicion = $args['posicion']; $anio = $args['anio']; $mes = $args['mes']; $dia = $args['dia'];  $hora = $args['hora'];
         $temperatura = 0; $humedadSuelo = 0;  $humedadRelativa = 0;
+        // ($hora < 10) ? $hora = '0'.$hora : $hora = $hora;
         $Array = array();
         
         $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
@@ -64,7 +68,8 @@
                                        "temperatura" => $temperatura));
         }
         
-        print_r(json_encode($Array));
+       print_r(json_encode($Array));
+        // return sendOkResponse(json_encode($Array),$response);
     });
 
     /* Retorna las instancias creadas en un dia promediadas por hora /{tipo}/{posicion}/{anio}/{mes}/{dia} */
