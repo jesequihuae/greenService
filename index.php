@@ -52,7 +52,7 @@
         // ($hora < 10) ? $hora = '0'.$hora : $hora = $hora;
         $Array = array();
 
-        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo.'\'&limit=200';
+        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo.'&limit=200';
         $respuesta = url($url_enviada);
 
         $respuesta = json_decode($respuesta);
