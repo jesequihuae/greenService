@@ -26,7 +26,7 @@
       $temperatura = 0; $humedadSuelo = 0;  $humedadRelativa = 0;
       $Array = array();
 
-       $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo.'&limit=200';
+       $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo.'&limit=400';
     	$respuesta = url($url_enviada);
       // print_r($url_enviada);
     	$respuesta = json_decode($respuesta);
@@ -52,12 +52,13 @@
         // ($hora < 10) ? $hora = '0'.$hora : $hora = $hora;
         $Array = array();
 
-        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo.'&limit=200';
+
+        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo.'&limit=400';
         $respuesta = url($url_enviada);
 
         $respuesta = json_decode($respuesta);
 
-        for ($i=0; $i < sizeof($respuesta) ; $i++)
+        for ($i=0; $i < sizeof($respuesta); $i++)
         {
           $temperatura = $respuesta[$i]->temperatura->value;
           $humedadSuelo = $respuesta[$i]->humedadSuelo->value;
@@ -88,7 +89,7 @@
             else
                 $hora = $i;
 
-             $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo;
+             $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';f_hora==\''.$hora.'\'&type='.$tipo.'&limit=400';
              $respuesta = url($url_enviada);
              $respuesta = json_decode($respuesta);
 
@@ -101,11 +102,11 @@
 
              $totalRegistros = sizeof($respuesta);
 
-             if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo == 0){
+             if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo != 0){
                   $temperatura = $temperatura/$totalRegistros;
                   $humedadRelativa = $humedadRelativa/$totalRegistros;
                   $humedadSuelo = $humedadSuelo/$totalRegistros;
-                  $temperatura = round($temperatura, 2);
+                  // $temperatura = round($temperatura, 2);
              }
 
              array_push($Array, array( "hora" => "".$hora.":00",
@@ -133,14 +134,14 @@
         $humedadSuelo = 0;
         $humedadRelativa = 0;
 
-        for ($i=0; $i <= $totalDias; $i++)
+        for ($i=1; $i <= $totalDias; $i++)
         {
             if($i<10)
                 $dia = '0'.$i;
             else
                 $dia = $i;
 
-           $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo;
+           $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo.'&limit=400';
            $respuesta = url($url_enviada);
            $respuesta = json_decode($respuesta);
 
@@ -154,7 +155,7 @@
 
            $totalRegistros = sizeof($respuesta);
 
-           if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo == 0){
+           if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo != 0){
              $temperatura = $temperatura/$totalRegistros;
              $humedadRelativa = $humedadRelativa/$totalRegistros;
              $humedadSuelo = $humedadSuelo/$totalRegistros;
@@ -193,7 +194,7 @@
         if($dia<10)
           $dia = '0'.$dia;
 
-        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo;
+        $url_enviada = '?q=position==\''.$posicion.'\';f_anio==\''.$anio.'\';f_mes==\''.$mes.'\';f_dia==\''.$dia.'\';&type='.$tipo.'&limit=400';
         $respuesta = url($url_enviada);
         $respuesta = json_decode($respuesta);
 
@@ -206,7 +207,7 @@
 
         $totalRegistros = sizeof($respuesta);
 
-        if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo == 0){
+        if($temperatura != 0 && $humedadRelativa != 0 && $humedadSuelo != 0){
           $temperatura = $temperatura/$totalRegistros;
           $humedadRelativa = $humedadRelativa/$totalRegistros;
           $humedadSuelo = $humedadSuelo/$totalRegistros;
